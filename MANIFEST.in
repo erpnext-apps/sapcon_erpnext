@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include custom_sapcon *.css
+recursive-include custom_sapcon *.csv
+recursive-include custom_sapcon *.html
+recursive-include custom_sapcon *.ico
+recursive-include custom_sapcon *.js
+recursive-include custom_sapcon *.json
+recursive-include custom_sapcon *.md
+recursive-include custom_sapcon *.png
+recursive-include custom_sapcon *.py
+recursive-include custom_sapcon *.svg
+recursive-include custom_sapcon *.txt
+recursive-exclude custom_sapcon *.pyc

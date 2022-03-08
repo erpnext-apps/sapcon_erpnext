@@ -58,8 +58,12 @@ def custom_pdf_merge(doctype,docid,attach_to_og_doc=False,doc_to_merge={}):
 				"attached_to_name": doc_to_merge['dt_to_merge_id'],
 				"attached_to_doctype": doc_to_merge['dt_to_merge'],
 				"file_name":attachment_filename})
-
-	other_attachments_str = ",".join(doc_to_merge['other_attachments_to_merge'])
+	
+	if 'other_attachments_to_merge' in doc_to_merge:
+		other_attachments_str = ",".join(doc_to_merge['other_attachments_to_merge'])
+	else:
+		other_attachments_str = ''
+		
 	other_attached_docs = frappe.get_all("File",
 				fields=['name','file_name','file_url'],
 				filters={

@@ -2,12 +2,14 @@
 from heapq import merge
 import frappe
 import os
+import json
+import io
 from frappe import _
 
 import PyPDF2
 
 @frappe.whitelist()
-def custom_pdf_merge(doctype,docid,attach_to_doc=False,doc_to_merge={}):
+def custom_pdf_merge(doctype,docid,attach_to_og_doc=False,doc_to_merge={}):
 
 	"""
 		doc_to_merge = {
@@ -18,19 +20,14 @@ def custom_pdf_merge(doctype,docid,attach_to_doc=False,doc_to_merge={}):
 			"attach_to_doc": True/False, ##should the merged pdf be attached to dt_to_merge_id
 			"other_attachments_to_merge":  [list of file names] ##list of pdfs attached to dt_to_merge_id that need to be merged along with attach_fieldname
 		}
+
 	"""
-	doc_to_merge={
-		'dt_to_merge': "BOM",
-		'dt_to_merge_id': 'BOM-AP - Sample-001',
-		'attach_fieldname': 'assembly_drawing',
-		'print_format': 'Test format',
-		'attach_to_doc': True,
-		'other_attachments_to_merge':['NF71146319605972FinanceInvoice.pdf','efg.pdf']
-	}
+
+	doc_to_merge=json.loads(doc_to_merge)
 
 	file_path = frappe.utils.get_url()
 	dir_path_idx = file_path.find('/')+2
-	dir_path =file_path[dir_path_idx:-5]	
+	dir_path =file_path[dir_path_idx:]
 
 	mergeFile = PyPDF2.PdfFileMerger()
 
@@ -40,25 +37,25 @@ def custom_pdf_merge(doctype,docid,attach_to_doc=False,doc_to_merge={}):
 	org_pdf = doc_to_merge['dt_to_merge_id'] + ".pdf"
 	doc_pdf = frappe.attach_print(doc_to_merge['dt_to_merge'], doc_to_merge['dt_to_merge_id'],
 				str(doc_to_merge['dt_to_merge_id']), print_format=doc_to_merge['print_format'])
-#	docfile = open(_("{}.pdf").format(docid),'w+')
 	docfile = open(org_pdf,"wb")
 	docfile.write(doc_pdf["fcontent"])
 
-	# Append pdf of original record 
+	# Append pdf of original record
 	og_doc_to_merge = PyPDF2.PdfFileReader(org_pdf,'rb')
 	mergeFile.append(og_doc_to_merge,'rb')
 
 	attachment_filename = frappe.get_value(doc_to_merge['dt_to_merge'],
-										doc_to_merge['dt_to_merge_id'],
-										doc_to_merge['attach_fieldname'])
+						doc_to_merge['dt_to_merge_id'],
+						doc_to_merge['attach_fieldname'])
+
 	idx = attachment_filename.rfind('/')+1
-	attachment_filename = attachment_filename[idx:]					
+	attachment_filename = attachment_filename[idx:]
 
 	# Fetch attachment details
 	attached_doc = frappe.get_all("File",
 			fields=["name", "file_name", "file_url"] ,
 			filters = {
-				"attached_to_name": doc_to_merge['dt_to_merge_id'], 
+				"attached_to_name": doc_to_merge['dt_to_merge_id'],
 				"attached_to_doctype": doc_to_merge['dt_to_merge'],
 				"file_name":attachment_filename})
 
@@ -74,59 +71,81 @@ def custom_pdf_merge(doctype,docid,attach_to_doc=False,doc_to_merge={}):
 	old_merged_doc = frappe.get_all("File",
 				fields=['name','file_name','file_url'],
 				filters={
-					"attached_to_name": doc_to_merge['dt_to_merge_id'],
-					"attached_to_doctype": doc_to_merge['dt_to_merge'],
-					"file_name":['like','Merged%']
+					"attached_to_name": ['in',(docid,doc_to_merge['dt_to_merge_id'])],
+					"attached_to_doctype": ['in',(doctype,doc_to_merge['dt_to_merge'])],
+					"file_name":['like','Merged_'+doc_to_merge['dt_to_merge_id']+'.pdf']
 				})
+
+
 	# Delete old Merged file
-	if old_merged_doc:
-		frappe.delete_doc("File",old_merged_doc[0].name)
-		print ('deleted' + old_merged_doc[0].file_name)
+	for doc in old_merged_doc:
+		frappe.delete_doc("File",doc.name)
 
 	# Append main attachment to merge file
 	if attached_doc:
-		to_merge =PyPDF2.PdfFileReader(dir_path + attached_doc[0].file_url)
+		if not attached_doc[0].file_url.startswith('/private'):
+			url = '/public' + attached_doc[0].file_url
+		to_merge =PyPDF2.PdfFileReader(dir_path + url)
 		mergeFile.append(to_merge,'rb')
 
 	# Append other attachments to final pdf
 	for pdfs in other_attached_docs:
-#		to_merge =PyPDF2.PdfFileReader(pdfs.file_url)
-		to_merge =PyPDF2.PdfFileReader(dir_path + pdfs.file_url)
+		if not pdfs.file_url.startswith('/private'):
+			url = '/public' + pdfs.file_url
+		to_merge =PyPDF2.PdfFileReader(dir_path + url)
 		mergeFile.append(to_merge,'rb')
 
 	if mergeFile:
-		# print (dir_path + final_merged_file)
-		mergeFile.write(dir_path+final_merged_file)
+		mergeFile.write(dir_path + final_merged_file)
 		mergeFile.close()
 
-		# Download merged file
-		frappe.response['filename'] = "Merged_"+doc_to_merge['dt_to_merge_id']+".pdf"
-		frappe.response['filecontent'] = mergeFile
-		frappe.response['type'] = 'download'
-
-		file_stats = os.stat(dir_path+final_merged_file)
+		file_stats = os.stat(dir_path + final_merged_file)
 		file_size = file_stats.st_size
 
-		if attach_to_doc:
+		if attach_to_og_doc == 1:
 			merged_file = frappe.get_doc({
-						"doctype": "File",
-						"file_name": "Merged_"+doc_to_merge['dt_to_merge_id']+".pdf",
-						"file_url":final_merged_file,
-						"attached_to_doctype": doctype,
-						"attached_to_name": docid,
-						"file_size":file_size,
-					})
+                                "doctype": "File",
+                                "file_name": "Merged_"+doc_to_merge['dt_to_merge_id']+".pdf",
+                                "file_url": final_merged_file,
+                                "attached_to_doctype": doctype,
+                                "attached_to_name": docid,
+                                "file_size":file_size,
+				"is_private": 1
+                        })
 			merged_file.insert()
-		merged_file = frappe.get_doc({
-					"doctype": "File",
-					"file_name": "Merged_"+doc_to_merge['dt_to_merge_id']+".pdf",
-					"file_url":final_merged_file,
-					"attached_to_doctype": 'BOM',
-					"attached_to_name": doc_to_merge['dt_to_merge_id'],
-					"file_size":file_size,
-				})
-		merged_file.insert()
-	
 
-#	frappe.msgprint(dir_path + final_merged_file)
-	return final_merged_file
+		merged_file = frappe.get_doc({
+				"doctype": "File",
+				"file_name": "Merged_"+doc_to_merge['dt_to_merge_id']+".pdf",
+				"file_url":final_merged_file,
+				"attached_to_doctype": 'BOM',
+				"attached_to_name": doc_to_merge['dt_to_merge_id'],
+				"file_size":file_size,
+				"is_private": 1
+			})
+		merged_file.insert()
+
+
+
+	return {'file_url' : merged_file.file_url,
+		'attached_to' : merged_file.attached_to_name}
+
+
+
+@frappe.whitelist()
+def download_merged_pdf(file_url,attached_to):
+
+	_byteIo = io.BytesIO()
+
+	pdfFile = open(frappe.utils.get_url()[8:] + file_url.strip(), 'rb')
+	pdfReader = PyPDF2.PdfFileReader(pdfFile)
+	pdfWriter = PyPDF2.PdfFileWriter()
+	for pageNum in range(pdfReader.numPages):
+		pageObj = pdfReader.getPage(pageNum)
+		pdfWriter.addPage(pageObj)
+	pdfWriter.write(_byteIo)
+
+# Download merged file
+	frappe.local.response.filename = "Merged_"+attached_to+".pdf"
+	frappe.local.response.filecontent = _byteIo.getvalue()
+	frappe.local.response.type = 'download'

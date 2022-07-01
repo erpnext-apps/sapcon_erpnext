@@ -27,7 +27,8 @@ def custom_pdf_merge(doctype,docid,attach_to_og_doc=False,doc_to_merge={}):
 
 	file_path = frappe.utils.get_url()
 	dir_path_idx = file_path.find('/')+2
-	dir_path =file_path[dir_path_idx:]
+	#dir_path =file_path[dir_path_idx:]
+	dir_path = frappe.get_site_path()
 
 	mergeFile = PyPDF2.PdfFileMerger()
 
@@ -37,12 +38,13 @@ def custom_pdf_merge(doctype,docid,attach_to_og_doc=False,doc_to_merge={}):
 	org_pdf = doc_to_merge['dt_to_merge_id'] + ".pdf"
 	doc_pdf = frappe.attach_print(doc_to_merge['dt_to_merge'], doc_to_merge['dt_to_merge_id'],
 				str(doc_to_merge['dt_to_merge_id']), print_format=doc_to_merge['print_format'])
-	docfile = open(org_pdf,"wb")
-	docfile.write(doc_pdf["fcontent"])
+
+	with open(org_pdf, "w") as docfile:
+		docfile.write(doc_pdf["fcontent"])
 
 	# Append pdf of original record
-	og_doc_to_merge = PyPDF2.PdfFileReader(org_pdf,'rb')
-	mergeFile.append(og_doc_to_merge,'rb')
+	og_doc_to_merge = PyPDF2.PdfFileReader(org_pdf,'r')
+	mergeFile.append(og_doc_to_merge,'r')
 
 	attachment_filename = frappe.get_value(doc_to_merge['dt_to_merge'],
 						doc_to_merge['dt_to_merge_id'],
@@ -86,18 +88,20 @@ def custom_pdf_merge(doctype,docid,attach_to_og_doc=False,doc_to_merge={}):
 		frappe.delete_doc("File",doc.name)
 
 	# Append main attachment to merge file
-	if attached_doc:
+	if attached_doc and len(attached_doc) > 0:
+		url = attached_doc[0].file_url
 		if not attached_doc[0].file_url.startswith('/private'):
 			url = '/public' + attached_doc[0].file_url
 		to_merge =PyPDF2.PdfFileReader(dir_path + url)
-		mergeFile.append(to_merge,'rb')
+		mergeFile.append(to_merge,'r')
 
 	# Append other attachments to final pdf
 	for pdfs in other_attached_docs:
+		url = pdfs.file_url
 		if not pdfs.file_url.startswith('/private'):
 			url = '/public' + pdfs.file_url
 		to_merge =PyPDF2.PdfFileReader(dir_path + url)
-		mergeFile.append(to_merge,'rb')
+		mergeFile.append(to_merge,'r')
 
 	if mergeFile:
 		mergeFile.write(dir_path + final_merged_file)
@@ -141,7 +145,7 @@ def download_merged_pdf(file_url,attached_to):
 
 	_byteIo = io.BytesIO()
 
-	pdfFile = open(frappe.utils.get_url()[8:] + file_url.strip(), 'rb')
+	pdfFile = open(frappe.get_site_path() + file_url.strip(), 'r')
 	pdfReader = PyPDF2.PdfFileReader(pdfFile)
 	pdfWriter = PyPDF2.PdfFileWriter()
 	for pageNum in range(pdfReader.numPages):

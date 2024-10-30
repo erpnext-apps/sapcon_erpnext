@@ -39,7 +39,7 @@ def custom_pdf_merge(doctype,docid,attach_to_og_doc=False,doc_to_merge={}):
 	doc_pdf = frappe.attach_print(doc_to_merge['dt_to_merge'], doc_to_merge['dt_to_merge_id'],
 				str(doc_to_merge['dt_to_merge_id']), print_format=doc_to_merge['print_format'])
 
-	with open(org_pdf, "w") as docfile:
+	with open(org_pdf, "wb") as docfile:
 		docfile.write(doc_pdf["fcontent"])
 
 	# Append pdf of original record
@@ -60,12 +60,12 @@ def custom_pdf_merge(doctype,docid,attach_to_og_doc=False,doc_to_merge={}):
 				"attached_to_name": doc_to_merge['dt_to_merge_id'],
 				"attached_to_doctype": doc_to_merge['dt_to_merge'],
 				"file_name":attachment_filename})
-	
+
 	if 'other_attachments_to_merge' in doc_to_merge:
 		other_attachments_str = ",".join(doc_to_merge['other_attachments_to_merge'])
 	else:
 		other_attachments_str = ''
-		
+
 	other_attached_docs = frappe.get_all("File",
 				fields=['name','file_name','file_url'],
 				filters={
@@ -145,7 +145,7 @@ def download_merged_pdf(file_url,attached_to):
 
 	_byteIo = io.BytesIO()
 
-	pdfFile = open(frappe.get_site_path() + file_url.strip(), 'r')
+	pdfFile = open(frappe.get_site_path() + file_url.strip(), 'rb')
 	pdfReader = PyPDF2.PdfFileReader(pdfFile)
 	pdfWriter = PyPDF2.PdfFileWriter()
 	for pageNum in range(pdfReader.numPages):

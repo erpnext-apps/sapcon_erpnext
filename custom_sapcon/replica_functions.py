@@ -20,7 +20,7 @@ def db_get_value(doctype,docname,fieldname):
 @frappe.whitelist()
 @frappe.read_only()
 def get_doc(doctype,docname):
-    doc = frappe.db.get_doc(doctype,docname)
+    doc = frappe.get_doc(doctype,docname)
     return doc
 #Example to Use this for replica server
 #temp = frappe.call(method="sapcon_erpnext.custom_sapcon.replica_functions.get_doc",doctype='Quality Procedure',docname="QP-2026-00001")

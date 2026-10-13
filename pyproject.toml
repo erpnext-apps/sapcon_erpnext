@@ -1,0 +1,12 @@
+[project]
+name = "sapcon_erpnect"
+authors = [
+    { name = "Sapcon Instruments Pvt Ltd", email = "vihang.t@sapcon.in" }
+]
+description = "This app will help us to read database through replica server setup"
+requires-python = ">=3.10"
+readme = "README.md"
+
+dependencies = [
+    "ERPNext>=15.0.0"
+]

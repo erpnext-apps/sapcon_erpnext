@@ -4,15 +4,15 @@ include *.json
 include *.md
 include *.py
 include *.txt
-recursive-include custom_sapcon *.css
-recursive-include custom_sapcon *.csv
-recursive-include custom_sapcon *.html
-recursive-include custom_sapcon *.ico
-recursive-include custom_sapcon *.js
-recursive-include custom_sapcon *.json
-recursive-include custom_sapcon *.md
-recursive-include custom_sapcon *.png
-recursive-include custom_sapcon *.py
-recursive-include custom_sapcon *.svg
-recursive-include custom_sapcon *.txt
-recursive-exclude custom_sapcon *.pyc
+recursive-include sapcon_custom *.css
+recursive-include sapcon_custom *.csv
+recursive-include sapcon_custom *.html
+recursive-include sapcon_custom *.ico
+recursive-include sapcon_custom *.js
+recursive-include sapcon_custom *.json
+recursive-include sapcon_custom *.md
+recursive-include sapcon_custom *.png
+recursive-include sapcon_custom *.py
+recursive-include sapcon_custom *.svg
+recursive-include sapcon_custom *.txt
+recursive-exclude sapcon_custom *.pyc

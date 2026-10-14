@@ -7,9 +7,9 @@ with open("requirements.txt") as f:
 from custom_sapcon import __version__ as version
 
 setup(
-	name="custom_sapcon",
+	name="sapcon_custom",
 	version=version,
-	description="custom sapcon",
+	description="Sapcon Custom",
 	author="Frappe",
 	author_email="krithi@erpnext.com",
 	packages=find_packages(),

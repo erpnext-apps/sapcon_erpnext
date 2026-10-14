@@ -1,9 +1,9 @@
 from . import __version__ as app_version
 
-app_name = "custom_sapcon"
-app_title = "Custom Sapcon"
+app_name = "sapcon_custom"
+app_title = "Sapcon Custom"
 app_publisher = "Frappe"
-app_description = "custom sapcon"
+app_description = "Sapcon Custom"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "krithi@erpnext.com"
@@ -58,27 +58,27 @@ app_license = "MIT"
 
 # add methods and filters to jinja environment
 # jinja = {
-# 	"methods": "custom_sapcon.utils.jinja_methods",
-# 	"filters": "custom_sapcon.utils.jinja_filters"
+# 	"methods": "sapcon_custom.utils.jinja_methods",
+# 	"filters": "sapcon_custom.utils.jinja_filters"
 # }
 
 # Installation
 # ------------
 
-# before_install = "custom_sapcon.install.before_install"
-# after_install = "custom_sapcon.install.after_install"
+# before_install = "sapcon_custom.install.before_install"
+# after_install = "sapcon_custom.install.after_install"
 
 # Uninstallation
 # ------------
 
-# before_uninstall = "custom_sapcon.uninstall.before_uninstall"
-# after_uninstall = "custom_sapcon.uninstall.after_uninstall"
+# before_uninstall = "sapcon_custom.uninstall.before_uninstall"
+# after_uninstall = "sapcon_custom.uninstall.after_uninstall"
 
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config
 
-# notification_config = "custom_sapcon.notifications.get_notification_config"
+# notification_config = "sapcon_custom.notifications.get_notification_config"
 
 # Permissions
 # -----------
@@ -117,39 +117,39 @@ app_license = "MIT"
 
 # scheduler_events = {
 # 	"all": [
-# 		"custom_sapcon.tasks.all"
+# 		"sapcon_custom.tasks.all"
 # 	],
 # 	"daily": [
-# 		"custom_sapcon.tasks.daily"
+# 		"sapcon_custom.tasks.daily"
 # 	],
 # 	"hourly": [
-# 		"custom_sapcon.tasks.hourly"
+# 		"sapcon_custom.tasks.hourly"
 # 	],
 # 	"weekly": [
-# 		"custom_sapcon.tasks.weekly"
+# 		"sapcon_custom.tasks.weekly"
 # 	],
 # 	"monthly": [
-# 		"custom_sapcon.tasks.monthly"
+# 		"sapcon_custom.tasks.monthly"
 # 	],
 # }
 
 # Testing
 # -------
 
-# before_tests = "custom_sapcon.install.before_tests"
+# before_tests = "sapcon_custom.install.before_tests"
 
 # Overriding Methods
 # ------------------------------
 #
 # override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "custom_sapcon.event.get_events"
+# 	"frappe.desk.doctype.event.event.get_events": "sapcon_custom.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-# 	"Task": "custom_sapcon.task.get_dashboard_data"
+# 	"Task": "sapcon_custom.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
@@ -185,6 +185,6 @@ app_license = "MIT"
 # --------------------------------
 
 # auth_hooks = [
-# 	"custom_sapcon.auth.validate"
+# 	"sapcon_custom.auth.validate"
 # ]
 

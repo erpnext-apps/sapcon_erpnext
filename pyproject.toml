@@ -1,15 +1,11 @@
 [project]
-name = "sapcon_erpnect"
+name = "sapcon_erpnext"
 authors = [
     { name = "Sapcon Instruments Pvt Ltd", email = "vihang.t@sapcon.in" }
 ]
 description = "This app will help us to read database through replica server setup"
 requires-python = ">=3.10"
 readme = "README.md"
-
-dependencies = [
-    
-]
 
 [tool.bench.frappe-dependencies]
 frappe = ">=15.0.0,<17.0.0"
